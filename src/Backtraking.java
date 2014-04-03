@@ -14,6 +14,7 @@ import java.util.Set;
 public class Backtraking {
 
 	private static long assignationCounter;
+	private static long selectionCounter;
 	private static List<List<Integer>> rowValueList;
 	private static List<List<Integer>> columnValueList;
 	private static List<List<Integer>> blockValueList;
@@ -68,10 +69,11 @@ public class Backtraking {
 				}
 			}
 			assignationCounter = 0;
+			selectionCounter = 0;
 			int[][] b = backtrakingSearch(board, blankSpaces);
 			System.out.println(Arrays.deepToString(board).replaceAll("],",
 					"],\r\n"));
-			System.out.println("effort: " + assignationCounter);
+			System.out.println("effort asig: " + assignationCounter+" ,sel: "+selectionCounter);
 			validateSudoku(board);
 			boardSize = -1;
 			blankSpaces = 0;
@@ -98,6 +100,7 @@ public class Backtraking {
 		int row, column;
 		Integer[] psbVal = orderDomainValues(var, assigment, csp);
 		for (int value : psbVal) {
+			selectionCounter++;
 			if (isPosibleValue(value, var, csp)) {
 				assigment[assigmentPosition][0] = var;
 				assigment[assigmentPosition][1] = value;
@@ -105,7 +108,7 @@ public class Backtraking {
 				column = (int) Math.floor(var % csp.length);
 				csp[row][column] = value;
 				assignationCounter++;
-				System.out.println(assignationCounter);
+				//System.out.println(assignationCounter);
 				rowValueList.get(row).remove(
 						new Integer(csp[row][column]));
 				columnValueList.get(column).remove(

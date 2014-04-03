@@ -19,6 +19,7 @@ public class Backtraking {
 	private static List<List<Integer>> columnValueList;
 	private static List<List<Integer>> blockValueList;
 	private static boolean FORDWARD_CHECKING = false;
+	private static boolean MIN_REMAINING_VALUES = false;
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
@@ -26,7 +27,8 @@ public class Backtraking {
 		int numTests = sc.nextInt();
 		int boardSize = -1;
 		int blankSpaces = 0;
-		FORDWARD_CHECKING = false;
+		FORDWARD_CHECKING = true;
+		MIN_REMAINING_VALUES = true;
 		for (int testCounter = 0; testCounter < numTests; testCounter++) {
 			while (boardSize < 1 || boardSize > 5) {
 				boardSize = sc.nextInt();
@@ -70,7 +72,8 @@ public class Backtraking {
 			int[][] b = backtrakingSearch(board, blankSpaces);
 			System.out.println(Arrays.deepToString(board).replaceAll("],",
 					"],\r\n"));
-			System.out.println("effort asig: " + assignationCounter+" ,sel: "+selectionCounter);
+			System.out.println("effort asig: " + assignationCounter + " ,sel: "
+					+ selectionCounter);
 			validateSudoku(board);
 			boardSize = -1;
 			blankSpaces = 0;
@@ -105,23 +108,22 @@ public class Backtraking {
 				column = (int) Math.floor(var % csp.length);
 				csp[row][column] = value;
 				assignationCounter++;
-				//System.out.println(assignationCounter);
-				rowValueList.get(row).remove(
-						new Integer(csp[row][column]));
+				// System.out.println(assignationCounter);
+				rowValueList.get(row).remove(new Integer(csp[row][column]));
 				columnValueList.get(column).remove(
 						new Integer(csp[row][column]));
 				int boardSize = (int) Math.sqrt(csp.length);
-				int blockNumber = (int) (boardSize * Math.floor(Math
-						.floor(var / csp.length) / boardSize));
+				int blockNumber = (int) (boardSize * Math.floor(Math.floor(var
+						/ csp.length)
+						/ boardSize));
 				blockNumber += ((int) Math.floor(var % csp.length) / boardSize);
 				blockValueList.get(blockNumber).remove(
 						new Integer(csp[row][column]));
-				
+
 				if (recursingBacktraking(++assigmentPosition, assigment, csp)) {
 					return true;
 				} else {
-					rowValueList.get(row).add(
-							new Integer(csp[row][column]));
+					rowValueList.get(row).add(new Integer(csp[row][column]));
 					columnValueList.get(column).add(
 							new Integer(csp[row][column]));
 					blockValueList.get(blockNumber).add(
@@ -129,7 +131,7 @@ public class Backtraking {
 					assigmentPosition--;
 					csp[row][column] = 0;
 					assigment[assigmentPosition][0] = -1;
-					assigment[assigmentPosition][1] = -1;					
+					assigment[assigmentPosition][1] = -1;
 				}
 			}
 		}
@@ -208,7 +210,7 @@ public class Backtraking {
 			Set<Integer> joinList = getRemainingValues(var, csp);
 			domainValues = new Integer[joinList.size()];
 			Iterator<Integer> it = joinList.iterator();
-			domainValues=joinList.toArray(new Integer[0]);
+			domainValues = joinList.toArray(new Integer[0]);
 		}
 		return domainValues;
 	}
@@ -226,20 +228,35 @@ public class Backtraking {
 		joinList.retainAll(blockValueList.get(blockNumber));
 		return joinList;
 	}
-	
-	
 
 	private static int selectUnassignedVariable(int assigmentPosition,
 			int[][] assigment, int[][] csp) {
-		int pos = -1;
-		if (assigmentPosition - 1 >= 0)
-			pos = assigment[assigmentPosition - 1][0];
+		int pos = -1;		
 		int row, column;// , subBlockSize = (int) Math.sqrt(csp.length);
-		do {
-			pos++;
-			row = (int) Math.floor(pos / csp.length);
-			column = (int) Math.floor(pos % csp.length);
-		} while (csp[row][column] != 0 && pos < csp.length * csp.length);
+		if (MIN_REMAINING_VALUES) {
+			int minRemainingValue = Integer.MAX_VALUE;
+			int posMinRemainingValue = 0;
+			for (pos = 0; pos < csp.length * csp.length; pos++) {
+				row = (int) Math.floor(pos / csp.length);
+				column = (int) Math.floor(pos % csp.length);
+				if(csp[row][column] == 0){
+					int tempMinVal = getRemainingValues(pos, csp).size();
+					if(tempMinVal < minRemainingValue){
+						minRemainingValue = tempMinVal;
+						posMinRemainingValue = pos;
+					}
+				}
+			}
+			pos = posMinRemainingValue;
+		} else {
+			if (assigmentPosition - 1 >= 0)
+				pos = assigment[assigmentPosition - 1][0];
+			do {
+				pos++;
+				row = (int) Math.floor(pos / csp.length);
+				column = (int) Math.floor(pos % csp.length);
+			} while (csp[row][column] != 0 && pos < csp.length * csp.length);
+		}
 		return pos;
 	}
 

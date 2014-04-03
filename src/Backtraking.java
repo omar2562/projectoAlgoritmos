@@ -18,10 +18,7 @@ public class Backtraking {
 	private static List<List<Integer>> rowValueList;
 	private static List<List<Integer>> columnValueList;
 	private static List<List<Integer>> blockValueList;
-	private static int BACKTRAKING = 0;
-	private static int BACKTRAKING_SA = 1;
-	private static int BACKTRAKING_SA2 = 2;
-	private static int method = 0;
+	private static boolean FORDWARD_CHECKING = false;
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
@@ -29,7 +26,7 @@ public class Backtraking {
 		int numTests = sc.nextInt();
 		int boardSize = -1;
 		int blankSpaces = 0;
-		method = BACKTRAKING_SA;
+		FORDWARD_CHECKING = false;
 		for (int testCounter = 0; testCounter < numTests; testCounter++) {
 			while (boardSize < 1 || boardSize > 5) {
 				boardSize = sc.nextInt();
@@ -202,29 +199,35 @@ public class Backtraking {
 	private static Integer[] orderDomainValues(int var, int[][] assigment,
 			int[][] csp) {
 		Integer[] domainValues = null;
-		if (method == BACKTRAKING) {
+		if (!FORDWARD_CHECKING) {
 			domainValues = new Integer[csp.length];
 			for (int i = 0; i < domainValues.length; i++) {
 				domainValues[i] = i + 1;
 			}
-		} else if (method == BACKTRAKING_SA) {
-			List<Integer> tempList = new ArrayList<Integer>();
-			int subBlockSize = (int) Math.sqrt(csp.length);
-			int row = (int) Math.floor(var / csp.length);
-			int column = (int) Math.floor(var % csp.length);
-			int blockNumber = (int) (subBlockSize * Math.floor(Math.floor(var
-					/ csp.length)
-					/ subBlockSize));
-			blockNumber += ((int) Math.floor(var % csp.length) / subBlockSize);
-			Set<Integer> joinList = new HashSet<Integer>(rowValueList.get(row));
-			joinList.retainAll(columnValueList.get(column));
-			joinList.retainAll(blockValueList.get(blockNumber));
+		} else {
+			Set<Integer> joinList = getRemainingValues(var, csp);
 			domainValues = new Integer[joinList.size()];
 			Iterator<Integer> it = joinList.iterator();
 			domainValues=joinList.toArray(new Integer[0]);
 		}
 		return domainValues;
 	}
+
+	private static Set<Integer> getRemainingValues(int var, int[][] csp) {
+		int subBlockSize = (int) Math.sqrt(csp.length);
+		int row = (int) Math.floor(var / csp.length);
+		int column = (int) Math.floor(var % csp.length);
+		int blockNumber = (int) (subBlockSize * Math.floor(Math.floor(var
+				/ csp.length)
+				/ subBlockSize));
+		blockNumber += ((int) Math.floor(var % csp.length) / subBlockSize);
+		Set<Integer> joinList = new HashSet<Integer>(rowValueList.get(row));
+		joinList.retainAll(columnValueList.get(column));
+		joinList.retainAll(blockValueList.get(blockNumber));
+		return joinList;
+	}
+	
+	
 
 	private static int selectUnassignedVariable(int assigmentPosition,
 			int[][] assigment, int[][] csp) {

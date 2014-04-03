@@ -8,13 +8,15 @@ import java.util.Scanner;
  * 
  */
 public class Backtraking {
+	
+	private static long assignationCounter;
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		int[][] board = null;
 		int numTests = sc.nextInt();
 		int boardSize = -1;
-		int blankSpaces = 0;
+		int blankSpaces = 0;		
 		for (int testCounter = 0; testCounter < numTests; testCounter++) {
 			while (boardSize < 1 || boardSize > 5) {
 				boardSize = sc.nextInt();
@@ -27,9 +29,10 @@ public class Backtraking {
 						blankSpaces++;
 				}
 			}
+			assignationCounter = 0;
 			int[][] b = backtrakingSearch(board, blankSpaces);
-			System.out.println(Arrays.deepToString(board).replaceAll("],",
-					"],\r\n"));
+			System.out.println(Arrays.deepToString(board).replaceAll("],","],\r\n"));
+			System.out.println("effort: "+assignationCounter);
 			validateSudoku(board);
 			boardSize = -1;
 			blankSpaces = 0;
@@ -61,6 +64,7 @@ public class Backtraking {
 				row = (int) Math.floor(var / csp.length);
 				column = (int) Math.floor(var % csp.length);
 				csp[row][column] = value;
+				assignationCounter++;
 				if (recursingBacktraking(++assigmentPosition, assigment, csp)) {
 					return true;
 				} else {
@@ -90,9 +94,9 @@ public class Backtraking {
 				if (!columnValueList.contains(csp[i][column])) {
 					columnValueList.add(csp[i][column]);
 				} else {
-					System.err.println("ColumnCheck value:" + value);
-					System.err.println("row:" + i + " ,col:" + column);
-					System.err.println("ColumnCheck: KO");
+//					System.err.println("ColumnCheck value:" + value);
+//					System.err.println("row:" + i + " ,col:" + column);
+//					System.err.println("ColumnCheck: KO");
 					return false;
 				}
 			}
@@ -100,9 +104,9 @@ public class Backtraking {
 				if (!rowValueList.contains(csp[row][i])) {
 					rowValueList.add(csp[row][i]);
 				} else {
-					System.err.println("RowCheck value:" + value);
-					System.err.println("row:" + row + " ,col:" + i);
-					System.err.println("RowCheck: KO");
+//					System.err.println("RowCheck value:" + value);
+//					System.err.println("row:" + row + " ,col:" + i);
+//					System.err.println("RowCheck: KO");
 					return false;
 				}
 			}
@@ -118,10 +122,10 @@ public class Backtraking {
 					if (!blockValueList.contains(csp[rowBlock][colBlock])) {
 						blockValueList.add(csp[rowBlock][colBlock]);
 					} else {
-						System.err.println("BlockCheck value:" + value);
-						System.err.println("block:" + blockNumber + " ,row:"
-								+ rowBlock + " ,col:" + colBlock);
-						System.err.println("BlockCheck: KO");
+//						System.err.println("BlockCheck value:" + value);
+//						System.err.println("block:" + blockNumber + " ,row:"
+//								+ rowBlock + " ,col:" + colBlock);
+//						System.err.println("BlockCheck: KO");
 						return false;
 					}
 				}

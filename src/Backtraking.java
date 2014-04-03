@@ -15,6 +15,7 @@ public class Backtraking {
 
 	private static long assignationCounter;
 	private static long selectionCounter;
+	private static long MAX_DEEP_TREE = 1*100*100*100;
 	private static List<List<Integer>> rowValueList;
 	private static List<List<Integer>> columnValueList;
 	private static List<List<Integer>> blockValueList;
@@ -94,6 +95,10 @@ public class Backtraking {
 
 	private static boolean recursingBacktraking(int assigmentPosition,
 			int[][] assigment, int[][] csp) {
+		if(selectionCounter > MAX_DEEP_TREE) {
+			System.err.println("Too many attempts, no solution");
+			return false;
+		}
 		if (isCompleteAssigment(assigmentPosition, assigment))
 			return true;
 		int var = selectUnassignedVariable(assigmentPosition, assigment, csp);

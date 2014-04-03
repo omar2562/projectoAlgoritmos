@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -21,6 +22,7 @@ public class Backtraking {
 	private static int BACKTRAKING_SA = 1;
 	private static int BACKTRAKING_SA2 = 2;
 	private static int method = 0;
+	private static Random r = new Random();
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
@@ -96,8 +98,11 @@ public class Backtraking {
 			return true;
 		int var = selectUnassignedVariable(assigmentPosition, assigment, csp);
 		int row, column;
-		Integer[] psbVal = orderDomainValues(var, assigment, csp);
-		for (int value : psbVal) {
+		List<Integer> psbVal = new ArrayList<Integer>(Arrays.asList(orderDomainValues(var, assigment, csp)));
+		int value;		
+		while (!psbVal.isEmpty()) {
+			value = psbVal.get(r.nextInt(psbVal.size()));
+			psbVal.remove(new Integer(value));
 			if (isPosibleValue(value, var, csp)) {
 				assigment[assigmentPosition][0] = var;
 				assigment[assigmentPosition][1] = value;
@@ -105,7 +110,7 @@ public class Backtraking {
 				column = (int) Math.floor(var % csp.length);
 				csp[row][column] = value;
 				assignationCounter++;
-				System.out.println(assignationCounter);
+				//System.out.println(assignationCounter);
 				rowValueList.get(row).remove(
 						new Integer(csp[row][column]));
 				columnValueList.get(column).remove(
@@ -129,7 +134,7 @@ public class Backtraking {
 					assigmentPosition--;
 					csp[row][column] = 0;
 					assigment[assigmentPosition][0] = -1;
-					assigment[assigmentPosition][1] = -1;					
+					assigment[assigmentPosition][1] = -1;
 				}
 			}
 		}

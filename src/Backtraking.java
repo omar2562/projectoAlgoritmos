@@ -1,6 +1,10 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 /**
  * 
@@ -8,31 +12,66 @@ import java.util.Scanner;
  * 
  */
 public class Backtraking {
-	
+
 	private static long assignationCounter;
+	private static List<List<Integer>> rowValueList;
+	private static List<List<Integer>> columnValueList;
+	private static List<List<Integer>> blockValueList;
+	private static int BACKTRAKING = 0;
+	private static int BACKTRAKING_SA = 1;
+	private static int BACKTRAKING_SA2 = 2;
+	private static int method = 0;
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		int[][] board = null;
 		int numTests = sc.nextInt();
 		int boardSize = -1;
-		int blankSpaces = 0;		
+		int blankSpaces = 0;
+		method = BACKTRAKING_SA;
 		for (int testCounter = 0; testCounter < numTests; testCounter++) {
 			while (boardSize < 1 || boardSize > 5) {
 				boardSize = sc.nextInt();
+			}
+			rowValueList = new ArrayList<List<Integer>>(boardSize * boardSize);
+			columnValueList = new ArrayList<List<Integer>>(boardSize
+					* boardSize);
+			blockValueList = new ArrayList<List<Integer>>(boardSize * boardSize);
+			List<Integer> defaulValues = new ArrayList<>();
+			for (int i = 0; i < boardSize * boardSize; i++) {
+				defaulValues.add(i + 1);
+			}
+			for (int i = 0; i < boardSize * boardSize; i++) {
+
+				rowValueList.add(new ArrayList<>(defaulValues));
+				columnValueList.add(new ArrayList<>(defaulValues));
+				blockValueList.add(new ArrayList<>(defaulValues));
 			}
 			board = new int[boardSize * boardSize][boardSize * boardSize];
 			for (int rowCounter = 0; rowCounter < board.length; rowCounter++) {
 				for (int columnCounter = 0; columnCounter < board.length; columnCounter++) {
 					board[rowCounter][columnCounter] = sc.nextInt();
-					if (board[rowCounter][columnCounter] == 0)
+					if (board[rowCounter][columnCounter] == 0) {
 						blankSpaces++;
+					} else {
+						rowValueList.get(rowCounter).remove(
+								new Integer(board[rowCounter][columnCounter]));
+						columnValueList.get(columnCounter).remove(
+								new Integer(board[rowCounter][columnCounter]));
+						int var = rowCounter * board.length + columnCounter;
+						int blockNumber = (int) (boardSize * Math.floor(Math
+								.floor(var / board.length) / boardSize));
+						blockNumber += ((int) Math.floor(var % board.length) / boardSize);
+						blockValueList.get(blockNumber).remove(
+								new Integer(board[rowCounter][columnCounter]));
+					}
 				}
 			}
 			assignationCounter = 0;
 			int[][] b = backtrakingSearch(board, blankSpaces);
-			System.out.println(Arrays.deepToString(board).replaceAll("],","],\r\n"));
-			System.out.println("effort: "+assignationCounter);
+			System.out.println(Arrays.deepToString(board).replaceAll("],",
+					"],\r\n"));
+			System.out.println("effort: " + assignationCounter);
 			validateSudoku(board);
 			boardSize = -1;
 			blankSpaces = 0;
@@ -57,7 +96,8 @@ public class Backtraking {
 			return true;
 		int var = selectUnassignedVariable(assigmentPosition, assigment, csp);
 		int row, column;
-		for (int value : orderDomainValues(var, assigment, csp)) {
+		Integer[] psbVal = orderDomainValues(var, assigment, csp);
+		for (int value : psbVal) {
 			if (isPosibleValue(value, var, csp)) {
 				assigment[assigmentPosition][0] = var;
 				assigment[assigmentPosition][1] = value;
@@ -65,13 +105,31 @@ public class Backtraking {
 				column = (int) Math.floor(var % csp.length);
 				csp[row][column] = value;
 				assignationCounter++;
+				System.out.println(assignationCounter);
+				rowValueList.get(row).remove(
+						new Integer(csp[row][column]));
+				columnValueList.get(column).remove(
+						new Integer(csp[row][column]));
+				int boardSize = (int) Math.sqrt(csp.length);
+				int blockNumber = (int) (boardSize * Math.floor(Math
+						.floor(var / csp.length) / boardSize));
+				blockNumber += ((int) Math.floor(var % csp.length) / boardSize);
+				blockValueList.get(blockNumber).remove(
+						new Integer(csp[row][column]));
+				
 				if (recursingBacktraking(++assigmentPosition, assigment, csp)) {
 					return true;
 				} else {
+					rowValueList.get(row).add(
+							new Integer(csp[row][column]));
+					columnValueList.get(column).add(
+							new Integer(csp[row][column]));
+					blockValueList.get(blockNumber).add(
+							new Integer(csp[row][column]));
 					assigmentPosition--;
 					csp[row][column] = 0;
 					assigment[assigmentPosition][0] = -1;
-					assigment[assigmentPosition][1] = -1;
+					assigment[assigmentPosition][1] = -1;					
 				}
 			}
 		}
@@ -94,9 +152,9 @@ public class Backtraking {
 				if (!columnValueList.contains(csp[i][column])) {
 					columnValueList.add(csp[i][column]);
 				} else {
-//					System.err.println("ColumnCheck value:" + value);
-//					System.err.println("row:" + i + " ,col:" + column);
-//					System.err.println("ColumnCheck: KO");
+					// System.err.println("ColumnCheck value:" + value);
+					// System.err.println("row:" + i + " ,col:" + column);
+					// System.err.println("ColumnCheck: KO");
 					return false;
 				}
 			}
@@ -104,28 +162,32 @@ public class Backtraking {
 				if (!rowValueList.contains(csp[row][i])) {
 					rowValueList.add(csp[row][i]);
 				} else {
-//					System.err.println("RowCheck value:" + value);
-//					System.err.println("row:" + row + " ,col:" + i);
-//					System.err.println("RowCheck: KO");
+					// System.err.println("RowCheck value:" + value);
+					// System.err.println("row:" + row + " ,col:" + i);
+					// System.err.println("RowCheck: KO");
 					return false;
 				}
 			}
 		}
-		int blockNumber = (int) (subBlockSize
-				* Math.floor(Math.floor(var / csp.length) / subBlockSize));
-		blockNumber+=((int) Math.floor(var % csp.length) / subBlockSize);
-		rowSubBlock = (int) (subBlockSize*(Math.floor(blockNumber / subBlockSize)));
-		columnSubBlock = (int) (subBlockSize*Math.floor(blockNumber % subBlockSize));
-		for (int rowBlock = rowSubBlock; rowBlock < rowSubBlock+ subBlockSize; rowBlock++) {
-			for (int colBlock = columnSubBlock; colBlock < columnSubBlock + subBlockSize; colBlock++) {
+		int blockNumber = (int) (subBlockSize * Math.floor(Math.floor(var
+				/ csp.length)
+				/ subBlockSize));
+		blockNumber += ((int) Math.floor(var % csp.length) / subBlockSize);
+		rowSubBlock = (int) (subBlockSize * (Math.floor(blockNumber
+				/ subBlockSize)));
+		columnSubBlock = (int) (subBlockSize * Math.floor(blockNumber
+				% subBlockSize));
+		for (int rowBlock = rowSubBlock; rowBlock < rowSubBlock + subBlockSize; rowBlock++) {
+			for (int colBlock = columnSubBlock; colBlock < columnSubBlock
+					+ subBlockSize; colBlock++) {
 				if (csp[rowBlock][colBlock] != 0) {
 					if (!blockValueList.contains(csp[rowBlock][colBlock])) {
 						blockValueList.add(csp[rowBlock][colBlock]);
 					} else {
-//						System.err.println("BlockCheck value:" + value);
-//						System.err.println("block:" + blockNumber + " ,row:"
-//								+ rowBlock + " ,col:" + colBlock);
-//						System.err.println("BlockCheck: KO");
+						// System.err.println("BlockCheck value:" + value);
+						// System.err.println("block:" + blockNumber + " ,row:"
+						// + rowBlock + " ,col:" + colBlock);
+						// System.err.println("BlockCheck: KO");
 						return false;
 					}
 				}
@@ -134,11 +196,29 @@ public class Backtraking {
 		return true;
 	}
 
-	private static int[] orderDomainValues(int var, int[][] assigment,
+	private static Integer[] orderDomainValues(int var, int[][] assigment,
 			int[][] csp) {
-		int[] domainValues = new int[csp.length];
-		for (int i = 0; i < domainValues.length; i++) {
-			domainValues[i] = i + 1;
+		Integer[] domainValues = null;
+		if (method == BACKTRAKING) {
+			domainValues = new Integer[csp.length];
+			for (int i = 0; i < domainValues.length; i++) {
+				domainValues[i] = i + 1;
+			}
+		} else if (method == BACKTRAKING_SA) {
+			List<Integer> tempList = new ArrayList<Integer>();
+			int subBlockSize = (int) Math.sqrt(csp.length);
+			int row = (int) Math.floor(var / csp.length);
+			int column = (int) Math.floor(var % csp.length);
+			int blockNumber = (int) (subBlockSize * Math.floor(Math.floor(var
+					/ csp.length)
+					/ subBlockSize));
+			blockNumber += ((int) Math.floor(var % csp.length) / subBlockSize);
+			Set<Integer> joinList = new HashSet<Integer>(rowValueList.get(row));
+			joinList.retainAll(columnValueList.get(column));
+			joinList.retainAll(blockValueList.get(blockNumber));
+			domainValues = new Integer[joinList.size()];
+			Iterator<Integer> it = joinList.iterator();
+			domainValues=joinList.toArray(new Integer[0]);
 		}
 		return domainValues;
 	}
@@ -148,12 +228,12 @@ public class Backtraking {
 		int pos = -1;
 		if (assigmentPosition - 1 >= 0)
 			pos = assigment[assigmentPosition - 1][0];
-		int row, column;//, subBlockSize = (int) Math.sqrt(csp.length);
+		int row, column;// , subBlockSize = (int) Math.sqrt(csp.length);
 		do {
 			pos++;
 			row = (int) Math.floor(pos / csp.length);
 			column = (int) Math.floor(pos % csp.length);
-		} while (csp[row][column] != 0 && pos < csp.length*csp.length);
+		} while (csp[row][column] != 0 && pos < csp.length * csp.length);
 		return pos;
 	}
 

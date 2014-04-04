@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -21,7 +22,8 @@ public class Backtraking {
 	private static List<List<Integer>> blockValueList;
 	private static boolean FORDWARD_CHECKING = false;
 	private static boolean MIN_REMAINING_VALUES = false;
-
+	private static Random r = new Random();
+	
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		int[][] board = null;
@@ -103,8 +105,11 @@ public class Backtraking {
 			return true;
 		int var = selectUnassignedVariable(assigmentPosition, assigment, csp);
 		int row, column;
-		Integer[] psbVal = orderDomainValues(var, assigment, csp);
-		for (int value : psbVal) {
+		List<Integer> psbVal = new ArrayList<Integer>(Arrays.asList(orderDomainValues(var, assigment, csp)));
+		int value;		
+		while (!psbVal.isEmpty()) {
+			value = psbVal.get(r.nextInt(psbVal.size()));
+			psbVal.remove(new Integer(value));
 			selectionCounter++;
 			if (isPosibleValue(value, var, csp)) {
 				assigment[assigmentPosition][0] = var;
@@ -113,8 +118,9 @@ public class Backtraking {
 				column = (int) Math.floor(var % csp.length);
 				csp[row][column] = value;
 				assignationCounter++;
-				// System.out.println(assignationCounter);
-				rowValueList.get(row).remove(new Integer(csp[row][column]));
+				//System.out.println(assignationCounter);
+				rowValueList.get(row).remove(
+						new Integer(csp[row][column]));
 				columnValueList.get(column).remove(
 						new Integer(csp[row][column]));
 				int boardSize = (int) Math.sqrt(csp.length);

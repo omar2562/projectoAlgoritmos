@@ -246,7 +246,7 @@ public class Backtraking {
 		int row, column;// , subBlockSize = (int) Math.sqrt(csp.length);
 		if (MIN_REMAINING_VALUES) {
 			int minRemainingValue = Integer.MAX_VALUE;
-			int posMinRemainingValue = 0;
+			List<Integer> posMinRemainingValue = new ArrayList<Integer>();
 			for (pos = 0; pos < csp.length * csp.length; pos++) {
 				row = (int) Math.floor(pos / csp.length);
 				column = (int) Math.floor(pos % csp.length);
@@ -254,11 +254,14 @@ public class Backtraking {
 					int tempMinVal = getRemainingValues(pos, csp).size();
 					if(tempMinVal < minRemainingValue){
 						minRemainingValue = tempMinVal;
-						posMinRemainingValue = pos;
+						posMinRemainingValue.clear();
+						posMinRemainingValue.add(pos);
+					}else if(tempMinVal == minRemainingValue){
+						posMinRemainingValue.add(pos);
 					}
 				}
 			}
-			pos = posMinRemainingValue;
+			pos = posMinRemainingValue.get(r.nextInt(posMinRemainingValue.size()));
 		} else {
 			if (assigmentPosition - 1 >= 0)
 				pos = assigment[assigmentPosition - 1][0];

@@ -77,12 +77,20 @@ public class Backtraking {
 			}
 			assignationCounter = 0;
 			selectionCounter = 0;
-			backtrakingSearch(board, blankSpaces);
-			System.out.println(Arrays.deepToString(board).replaceAll("],",
-					"],\r\n"));
-			System.out.println("effort asig: " + assignationCounter + " ,sel: "
-					+ selectionCounter);
-			validateSudoku(board);
+			if (backtrakingSearch(board, blankSpaces)) {
+				String boardSolution = Arrays.deepToString(board);
+				boardSolution = boardSolution.replaceAll("], ", "\n");
+				boardSolution = boardSolution.replaceAll(",", "");
+				boardSolution = boardSolution.replaceAll("\\[", "");
+				boardSolution = boardSolution.replaceAll("\\]", "");
+				boardSolution += "\n";
+				System.out.println(boardSolution);
+			} else {
+				System.out.println("Too many attempts, no solution");
+			}
+			// validateSudoku(board);
+			// System.out.println("effort asig: " + assignationCounter +
+			// " ,sel: " + selectionCounter);
 			boardSize = -1;
 			blankSpaces = 0;
 		}

@@ -39,6 +39,12 @@ public class Backtraking {
 	private static boolean MIN_REMAINING_VALUES = false;
 	private static Random r = new Random();
 
+	private static long NUMBERTEST_FOR_TESTCASE = 10;
+	private static long number_solutions;
+	private static long summation_selectionCounter;
+	private static long min_selectionCounter;
+	private static long max_selectionCounter;
+
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		int[][] board = null;
@@ -47,6 +53,9 @@ public class Backtraking {
 		int blankSpaces = 0;
 		FORDWARD_CHECKING = true;
 		MIN_REMAINING_VALUES = true;
+		List<List<Integer>> rowValueListCopy;
+		List<List<Integer>> columnValueListCopy;
+		List<List<Integer>> blockValueListCopy;
 		for (int testCounter = 0; testCounter < numTests; testCounter++) {
 			while (boardSize < 1 || boardSize > 5) {
 				boardSize = sc.nextInt();
@@ -75,14 +84,64 @@ public class Backtraking {
 					}
 				}
 			}
-			assignationCounter = 0;
-			selectionCounter = 0;
-			backtrakingSearch(board, blankSpaces);
-			System.out.println(Arrays.deepToString(board).replaceAll("],",
-					"],\r\n"));
-			System.out.println("effort asig: " + assignationCounter + " ,sel: "
-					+ selectionCounter);
-			validateSudoku(board);
+			rowValueListCopy = new ArrayList<>();
+			for (List<Integer> list : rowValueList) {
+				rowValueListCopy.add(new ArrayList<Integer>(list));
+			}
+			columnValueListCopy = new ArrayList<>();
+			for (List<Integer> list : columnValueList) {
+				columnValueListCopy.add(new ArrayList<Integer>(list));
+			}
+			blockValueListCopy = new ArrayList<>();
+			for (List<Integer> list : blockValueList) {
+				blockValueListCopy.add(new ArrayList<Integer>(list));
+			}
+			int[][] boardToTest = null;
+			number_solutions = 0;
+			summation_selectionCounter = 0;
+			min_selectionCounter = Long.MAX_VALUE;
+			max_selectionCounter = Long.MIN_VALUE;
+			for (int i = 0; i < NUMBERTEST_FOR_TESTCASE; i++) {
+				/*
+				 * restore the variables to make the backtraking
+				 */
+				boardToTest = new int[board.length][];
+				for (int j = 0; j < board.length; j++)
+					boardToTest[j] = board[j].clone();
+				rowValueList = new ArrayList<>();
+				for (List<Integer> list : rowValueListCopy) {
+					rowValueList.add(new ArrayList<Integer>(list));
+				}
+				columnValueList = new ArrayList<>();
+				for (List<Integer> list : columnValueListCopy) {
+					columnValueList.add(new ArrayList<Integer>(list));
+				}
+				blockValueList = new ArrayList<>();
+				for (List<Integer> list : blockValueListCopy) {
+					blockValueList.add(new ArrayList<Integer>(list));
+				}
+
+				assignationCounter = 0;
+				selectionCounter = 0;
+				if (backtrakingSearch(boardToTest, blankSpaces)) {
+					number_solutions++;
+					summation_selectionCounter += selectionCounter;
+					if (selectionCounter > max_selectionCounter)
+						max_selectionCounter = selectionCounter;
+					if (selectionCounter < min_selectionCounter)
+						min_selectionCounter = selectionCounter;
+				}
+			}
+			long porcentSolution = 100 * number_solutions
+					/ NUMBERTEST_FOR_TESTCASE;
+			long prom = 0;
+			if (number_solutions > 0) {
+				prom = summation_selectionCounter / number_solutions;
+				System.out.println(prom + " " + min_selectionCounter + " "
+						+ max_selectionCounter + " " + porcentSolution);
+			} else {
+				System.out.println("0 0 0 0");
+			}
 			boardSize = -1;
 			blankSpaces = 0;
 		}

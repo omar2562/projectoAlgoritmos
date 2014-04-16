@@ -77,20 +77,34 @@ public class Backtraking {
 			}
 			assignationCounter = 0;
 			selectionCounter = 0;
+			String line = "";
+			for (int i = 0; i < Math.sqrt(board.length); i++) {
+				line += "---";
+			}
+			line += "+";
+			String fullLine = "";
+			for (int i = 0; i < Math.sqrt(board.length); i++) {
+				fullLine += line;
+			}
 			if (backtrakingSearch(board, blankSpaces)) {
-				String boardSolution = Arrays.deepToString(board);
-				boardSolution = boardSolution.replaceAll("], ", "\n");
-				boardSolution = boardSolution.replaceAll(",", "");
-				boardSolution = boardSolution.replaceAll("\\[", "");
-				boardSolution = boardSolution.replaceAll("\\]", "");
-				boardSolution += "\n";
-				System.out.println(boardSolution);
+				for (int i = 0; i < board.length; i++) {
+					if (i % Math.sqrt(board.length) == 0 && i > 0)
+						System.out.print("\n" + fullLine);
+					System.out.println();
+					for (int j = 0; j < board.length; j++) {
+						if (j % Math.sqrt(board.length) == 0 && j > 0)
+							System.out.print("|");
+						System.out.print(board[i][j] < 10 ? " " + board[i][j]
+								: board[i][j]);
+						System.out.print(" ");
+					}
+				}
+				System.out.println();
 			} else {
 				System.out.println("Too many attempts, no solution");
 			}
 			// validateSudoku(board);
-			// System.out.println("effort asig: " + assignationCounter +
-			// " ,sel: " + selectionCounter);
+			System.out.println("Effort: " + assignationCounter);
 			boardSize = -1;
 			blankSpaces = 0;
 		}

@@ -322,9 +322,90 @@ public class Backtraking {
 	}
 
 	/**
+	 * remove the values in joinList if the other unassigned variable in the
+	 * row, column and sub-block where var belongs will get without possible
+	 * values to assign.
+	 * 
+	 * @param var
+	 *            variable free on the SUDOKU.
+	 * @param csp
+	 *            board of the SUDOKU.
+	 * @param joinList
+	 *            a set with the possible values for var.
+	 */
+	private static void leftOtherVariableWithoutPossibleValues(int var,
+			int[][] csp, Set<Integer> joinList) {
+		int subBlockSize = (int) Math.sqrt(csp.length);
+		int row = (int) Math.floor(var / csp.length);
+		int column = (int) Math.floor(var % csp.length);
+		int blockNumber = getSubBlockNumber(subBlockSize, var);
+		Integer variableAffected;
+		List<Integer> variableToCheck = new ArrayList<Integer>();
+		Set<Integer> possibleValues;
+		for (int i = 0; i < csp.length; i++) {
+			if (csp[i][column] == 0 && i != row) {
+				variableAffected = i * csp.length + column;
+				variableToCheck.add(variableAffected);
+			}
+			if (csp[row][i] == 0 && i != column) {
+				variableAffected = row * csp.length + i;
+				variableToCheck.add(variableAffected);
+			}
+		}
+		int rowSubBlockStart = (int) (subBlockSize * (Math.floor(blockNumber
+				/ subBlockSize)));
+		int columnSubBlockStart = (int) (subBlockSize * Math.floor(blockNumber
+				% subBlockSize));
+		for (int rowBlock = rowSubBlockStart; rowBlock < rowSubBlockStart
+				+ subBlockSize; rowBlock++) {
+			for (int colBlock = columnSubBlockStart; colBlock < columnSubBlockStart
+					+ subBlockSize; colBlock++) {
+				if (csp[rowBlock][colBlock] == 0 && rowBlock != row
+						&& colBlock != column) {
+					variableAffected = rowBlock * csp.length + colBlock;
+					if (!variableToCheck.contains(variableAffected)) {
+						variableToCheck.add(variableAffected);
+					}
+				}
+			}
+		}
+		for (Integer varAffected : variableToCheck) {
+			possibleValues = new HashSet<>(getPossibleValues(varAffected, csp));
+			if (possibleValues.size() == 1) {
+				possibleValues.retainAll(joinList);
+				if (possibleValues.size() == 1)
+					joinList.removeAll(possibleValues);
+			}
+		}
+	}
+
+	/**
+	 * Get in a set the intersection of all possible values in the lists:
+	 * rowValueList,columnValueList,blockValueList
+	 * 
+	 * @param var
+	 *            variable free on the SUDOKU.
+	 * @param csp
+	 *            board of the SUDOKU.
+	 * @return
+	 */
+	private static Set<Integer> getPossibleValues(int var, int[][] csp) {
+		int subBlockSize = (int) Math.sqrt(csp.length);
+		int row = (int) Math.floor(var / csp.length);
+		int column = (int) Math.floor(var % csp.length);
+		int blockNumber = getSubBlockNumber(subBlockSize, var);
+		Set<Integer> joinList = new HashSet<Integer>(rowValueList.get(row));
+		joinList.retainAll(columnValueList.get(column));
+		joinList.retainAll(blockValueList.get(blockNumber));
+		return joinList;
+	}
+
+	/**
 	 * get all possible values for the Forward Checking heuristic with the
 	 * intersection of all possible values in the lists:
-	 * rowValueList,columnValueList,blockValueList.
+	 * rowValueList,columnValueList,blockValueList. And remove all values that
+	 * will make other variable in their scope(row,column and sub-block) get
+	 * without possible value.
 	 * 
 	 * @param var
 	 *            variable free on the SUDOKU
@@ -334,13 +415,8 @@ public class Backtraking {
 	 *         heuristic.
 	 */
 	private static Set<Integer> getRemainingValues(int var, int[][] csp) {
-		int subBlockSize = (int) Math.sqrt(csp.length);
-		int row = (int) Math.floor(var / csp.length);
-		int column = (int) Math.floor(var % csp.length);
-		int blockNumber = getSubBlockNumber(subBlockSize, var);
-		Set<Integer> joinList = new HashSet<Integer>(rowValueList.get(row));
-		joinList.retainAll(columnValueList.get(column));
-		joinList.retainAll(blockValueList.get(blockNumber));
+		Set<Integer> joinList = getPossibleValues(var, csp);
+		leftOtherVariableWithoutPossibleValues(var, csp, joinList);
 		return joinList;
 	}
 

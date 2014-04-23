@@ -39,7 +39,7 @@ public class Backtraking {
 	private static boolean MIN_REMAINING_VALUES = false;
 	private static Random r = new Random();
 
-	private static long NUMBERTEST_FOR_TESTCASE = 10;
+	private static long NUMBERTEST_FOR_TESTCASE = 10 * 100;
 	private static long number_solutions;
 	private static long summation_selectionCounter;
 	private static long min_selectionCounter;
